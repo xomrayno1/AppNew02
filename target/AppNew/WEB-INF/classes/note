@@ -1,0 +1,2 @@
+insert into User values(1, 1, 'DH', '2022-02-05', 'admin@gmail.com', 'admin', 12345, 1234555, 1, '2022-02-05', 'admin')
+insert into User values(2, 1, 'DH', '2022-02-05', 'user@gmail.com', 'user', 12345, 1234555, 2, '2022-02-05', 'user');

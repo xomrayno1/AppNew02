@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+
+	xmlns:context="http://www.springframework.org/schema/context"
+
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+ 	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+
+        http://www.springframework.org/schema/beans
+
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+
+        http://www.springframework.org/schema/mvc
+
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+
+        http://www.springframework.org/schema/context
+
+              http://www.springframework.org/schema/context/spring-context.xsd
+              http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+        
+          <mvc:default-servlet-handler/>
+          <context:component-scan base-package="com.app"/>
+          <mvc:annotation-driven/>
+          
+          <mvc:resources location="/resources/" mapping="/resources/**"/>
+       	 
+          <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+          		<property name="order" value="1"></property>
+          		<property name="prefix" value="/WEB-INF/views/"></property>
+          		<property name="suffix" value=".jsp"></property>
+          </bean>  
+           <bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" id="viewResolver">
+           		<property name="order" value="0"/>
+           		<property name="viewClass" value="org.springframework.web.servlet.view.tiles3.TilesView"></property>
+          </bean>   
+          <bean  id="tilesConfigure"	class="org.springframework.web.servlet.view.tiles3.TilesConfigurer">
+          		<property name="definitions">
+            	 	<list>
+            	 		<value>/WEB-INF/tiles.xml</value>
+            	 	</list>
+            	 </property>
+          </bean>
+          <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+             	<property name="locations">
+             		<list>
+             			<value>classpath:jdbc.properties</value>
+             		</list>
+             		
+             	</property>
+             </bean>
+             <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+             	<property name="driverClassName" value="${jdbc.driverClassName}"></property>
+             	<property name="username" value="${jdbc.username}"></property>
+             	<property name="password" value="${jdbc.password}"></property>
+             	<property name="url" value="${jdbc.url}"></property>
+             </bean>
+             <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+             	<property name="dataSource" ref="dataSource"></property>
+             	<property name="packagesToScan" value="com.app.entity"></property>
+             	<property name="hibernateProperties">
+             		<props>
+             			<prop key="hibernate.show_sql">true</prop>
+             			<prop key="hibernate.hbm2ddl.auto">update</prop>
+             		</props>
+             	</property>
+             </bean>
+             <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+             	<property name="sessionFactory" ref="sessionFactory"></property>
+             </bean>
+             <tx:annotation-driven transaction-manager="transactionManager"  />
+             <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"> 
+             	<property name="basename" value="/message/messages"></property>
+             </bean>
+          
+           <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+     			<property name="maxUploadSize" value="268435456"></property>
+     		</bean>    
+     		<mvc:default-servlet-handler/>
+     		
+     		<!-- <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">    		
+     		</bean> -->
+     	
+
+     	<mvc:interceptors>
+     			<mvc:interceptor>
+     				<mvc:mapping path="/**"/>
+     				<mvc:mapping path="/goods-issue/**"/>
+     				<mvc:exclude-mapping path="/login"/>
+     				<mvc:exclude-mapping path="/logout"/>
+     				<mvc:exclude-mapping path="/processLogin"/>
+     				<mvc:exclude-mapping path="/access-denied"/>
+     				<bean class="com.app.filter.FilterSystem"/>
+     			</mvc:interceptor>		
+     		</mvc:interceptors>
+     		<mvc:interceptors>
+     			<mvc:interceptor>
+     				<mvc:mapping path="/manage/**"/>
+     				<mvc:mapping path="/customers/**"/>
+     				<mvc:mapping path="/invoice/**"/>
+     				<mvc:mapping path="/statistics/**"/>
+     				 
+     				<mvc:mapping path="/goods-receipt/**"/>
+     				<bean class="com.app.filter.FilterAdmin"/>
+     			</mvc:interceptor>		
+     		</mvc:interceptors>
+     		<mvc:interceptors>
+     			<mvc:interceptor>
+     				<mvc:mapping path="/user/**"/>
+     				<bean class="com.app.filter.FilterUser"/>
+     			</mvc:interceptor>		
+     		</mvc:interceptors>
+ 
+    </beans>
